@@ -1,4 +1,4 @@
-tually# Program Purpose:
+# Program Purpose:
 # This program waits for data on serial port COM1, and writes it to the screen
 
 # To test this, run "pyserial read.py" first, then in other python shell, run "pyserial write.py"

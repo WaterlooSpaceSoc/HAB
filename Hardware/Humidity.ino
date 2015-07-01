@@ -48,5 +48,8 @@ float getHumidity(float degreesCelsius){
   
   //
 
-  return trueRH;
+//  return trueRH;
+
+  return adjustedtrueRH //DR: Haven't actually tested with hardware yet (June 30th, 2015)
+  
 }

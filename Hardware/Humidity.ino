@@ -27,7 +27,7 @@ void loop(){
 
 float getHumidity(float degreesCelsius){
   //caculate relative humidity
-  float supplyVolt = 5.0;
+  float supplyVolt = 5.0; //If changing to 3.3V, would need to change here.
 
   // read the value from the sensor:
   int HIH4030_Value = analogRead(HIH4030_Pin);
@@ -39,6 +39,14 @@ float getHumidity(float degreesCelsius){
   //  Table 2 of the sheet shows the may deviate from this line
   float sensorRH = 161.0 * voltage / supplyVolt - 25.8;
   float trueRH = sensorRH / (1.0546 - 0.0026 * degreesCelsius); //temperature adjustment 
+  
+  //DR: Using the datasheet (as recommended in bldr article)
+  
+  float sensorRHoffset = (voltage - 0.958)/0.0307;
+  float adjustedtrueRH = sensorRHoffset / (1.0546 - 0.0026 * degreesCelsius);
+  
+  
+  //
 
   return trueRH;
 }

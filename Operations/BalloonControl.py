@@ -7,7 +7,7 @@ from HAB.Operations.MessageProcessor import BalloonMP, buildCommand
 
 class HAB:
     def __init__(self):
-        self.interface = serial.Serial('COM5', 9600)
+        self.interface = serial.Serial('COM5', 9600) #DR: Will need to be changed to something like '/dev/ttyUSB0' on the Pi
         self.logger = Logger(print, "BalloonControlLog.log")
         self.mp = BalloonMP(self.interface, self.logger.log)
         self.operate()

@@ -1,14 +1,15 @@
 import sys
 
 import serial
+from HAB.Operations.BalloonMP import BalloonMP
 from HAB.Operations.Logger import Logger
-from HAB.Operations.MessageProcessor import BalloonMP, buildCommand
+from HAB.Operations.MessageProcessor import buildMessage
 
 
 class HAB:
     def __init__(self):
         self.interface = serial.Serial('COM5', 9600)
-        self.logger = Logger(print, "BalloonControlLog.log")
+        self.logger = Logger(print, "Balloon.log")
         self.mp = BalloonMP(self.interface, self.logger.log)
         self.operate()
 
@@ -22,9 +23,7 @@ class HAB:
             command = input("")
             if command == "exit" or command == "Exit":
                 break
-            message = buildCommand(command)
-            self.mp.send(message)
-            print("Sending: " + message)
+            self.mp.sendInput(command)
 
     def terminate(self):
         self.mp.stop()

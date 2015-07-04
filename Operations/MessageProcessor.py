@@ -4,14 +4,20 @@ import serial
 null_terminator = '\0'
 unit_separator = '\31'
 
-def buildResponse(command, value="None"):
-    return _buildMessage("R", command, value)
+def buildValue(args):
+    value = ""
+    for arg in args:
+        value += unit_separator + arg
+    if value == "":
+        return None
+    return value
 
-def buildCommand(command, value="None"):
-    return _buildMessage("C", command, value)
-
-def _buildMessage(header, command, value):
-    message = header + unit_separator + command + unit_separator + value + null_terminator
+def buildMessage(command, args):
+    message = command
+    value = buildValue(args)
+    if value is not None:
+        message += value
+    message += null_terminator
     return message
 
 class MessageProcessor:
@@ -35,9 +41,19 @@ class MessageProcessor:
         self.log("Sending: " + message)
         self.interface.write(message.encode())
 
-    def execute(self, message):
-        type, command, args = self.unmarshal(message)
-        self.log("Receiving: " + message) # TODO: Something useful
+    def sendInput(self, line):
+        split = line.split(" ")
+        message = buildMessage(split[0], split[1:])
+        self.send(message)
+
+    def extract(self, message):
+        command, args = self.unmarshal(message)
+        self.log("Receiving: " + message)
+        self.execute(command, args)
+
+    # Must be overriden
+    def execute(self, command, args):
+        pass
 
     def process(self):
         message = ""
@@ -45,7 +61,7 @@ class MessageProcessor:
             self.interface.timeout = 10
             char = self.receive()
             if char == null_terminator:
-                self.execute(message)
+                self.extract(message)
                 message = ""
             else:
                 message += char
@@ -54,17 +70,9 @@ class MessageProcessor:
     def unmarshal(self, message):
         """
         Unmarshal the message into its components.
-        Form: "X:Command:arg1:arg2..." where : is the unit_separator
-        X can be C for command or R for response.
+        Form: "Command:arg1:arg2..." where : is the unit_separator
         """
         # Note this format is prone to change, I needed something to work with
+        message = message.replace(null_terminator, "")
         split = message.split(unit_separator)
-        return split[0], split[1], split[2:]
-
-class GroundControlMP(MessageProcessor):
-    def __init__(self, interface, log):
-        MessageProcessor.__init__(self, self.process, interface, log)
-
-class BalloonMP(MessageProcessor):
-    def __init__(self, interface, log):
-        MessageProcessor.__init__(self, self.process, interface, log)
+        return split[0], split[1:]

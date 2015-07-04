@@ -3,8 +3,6 @@ import sys
 import serial
 from HAB.Operations.BalloonMP import BalloonMP
 from HAB.Operations.Logger import Logger
-from HAB.Operations.MessageProcessor import buildMessage
-
 
 class HAB:
     def __init__(self):

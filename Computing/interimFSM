@@ -1,0 +1,140 @@
+#
+#
+#Main HAB Script
+#
+#To be running continuously upon booting.
+#
+#
+
+
+import serial
+
+import os
+
+##Pre-Flight Mode
+
+##
+##System prepares everything needed for actual flight, including:
+##
+##Setting system time for use with data logging
+##
+##Confirming communications link with ground transceiver
+##
+##Getting initial sensor readings to ensure sensor functionality
+##
+##(To be expanded)
+##
+
+#import GPStimestamp.py ##Still to be uploaded by Hardware
+
+arduino = serial.Serial('dev/ttyUSB1', 9600)
+
+year, month, day, hour, minutes = GPStimestamp.getstamp(arduino) ##Grabbing the GPS data from the connected Arduino over serial.
+
+gpstime = year + "-" + month + "-" + day + ' ' + hour + ":" + minutes ##Preparing format for terminal command
+
+os.system('sudo date -u --set "%s"' % gpstime) ##Setting the system time via the terminal
+
+
+#####
+##Import and use of communications scripts to confirm link with ground. Will be updated once we know what those scripts look like and how best to call them.
+##
+
+transmitter = serial.Serial('/dev/ttyUSB0', 15200) ##For example, subject to change.
+
+
+
+
+
+
+
+
+##
+##
+#####
+
+##Sensor Tests
+
+#import sensorinit.py
+
+import picamera
+
+camera=picamera.PiCamera() ##Use this call to set image size and other effects, such as controlling the LED, etc.
+##Or could set later with 'camera.resolution(x,y); this might even be something we control over communications.
+
+ ##Separate script responsible for iterating over each sensor connected via the ADC, as well as the GPS (a bit redunant seeing as how we use it above, but why not?
+
+if (sensorinit.check(arduino) == True):
+	##Communications script used, calling to send a message along the lines of 'sensors confirmed'
+	camera.capture('startup.jpg') ##Just testing out the camera, which would raise an error if the module failed or was not connected.
+	##TO DO: Look at exceptions raised by this command, edit main script to catch and handle, rather than freezing (as the camera.py script had been doing before)
+
+else: ##Something didn't work, the script should return a string (or code) explaining which sensor(s) failed the test
+	
+	##Communications: Transmit message detailing which sensors failed, so we can know what's going on.
+	
+	camera.capture('startup.jpg') ##Still taking a picture anyways, as it might be the case that we still decide to fly even with some sensors not responding, or the sensors are fixed.
+
+##
+##
+##Mechanics question: would there be some sort of way to test the cut-off system to make sure we can control it?
+##
+##
+
+##
+##PREFLIGHT CHECKS COMPLETE
+##
+##Now we just standby until launch.
+
+
+while True: ##Very low-level looping to keep us in this sort of 'preflight' status, until we are told otherwise
+	
+	##Communications stuff to poll receiver continuously, waiting for the command to launch to be received.
+	
+	
+
+##'Launch' command received
+
+##Flight Mode:
+
+
+
+
+##The below loop occurs assuming that we aren't getting any commands from the ground to do things differently.
+##A separate process polls the ground cyclically to confirm we maintain a link, breaking the below loop and initiating cut down processes once
+##fail to exchange checks with ground 'x' number of times.
+##
+##Another process runs simultaneously, listening to the receiver and breaking/altering the below loop once a command in received which demands change to 'typical' operation (e.g. "poll temp more frequently now" or "more frequent GPS tracking").
+##
+
+#import GPSdatagrab.py ##What we use to grab relevant data from the GPS, such as lat, lon, altitude, and speed.
+
+#import sensorgrab.py #What we use to grab data from sensors.
+
+import datetime
+
+oldtime = datetime.datetime()
+
+while True: ##Again, simple 'loop forever' 
+	
+	lat, lon, alt, speed = GPSdatagrab.relevant(arduino)
+	
+	##Send down via comm: lat and lon, possibly alt and speed (requires testing with baud rate to see if communications budget allows for the extra data).
+	
+	pressure, temp, envtemp, humidity = sensorgrab.everything(arduino)
+	
+	##Insert code for storage in dictionary
+	
+	currtime = datetime.now()
+	
+	##Storing with datetime stamp as key for dictionary entry, storing the above 8 variables.
+	
+	camera.capture('image'+ time.strftime('%H:%M:%S') +'.jpg') ##Storing images periodically.
+	
+	##What else needs to be done continuously?
+	
+
+##Cutdown code to be added below.
+
+def cutdown(): ##Utilizes Pi's built-in GPIO in order to to trigger cutdown mechanism.
+	##To be added.

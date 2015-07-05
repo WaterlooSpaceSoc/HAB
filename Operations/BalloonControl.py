@@ -38,6 +38,10 @@ class BalloonControl(QueueProcessor):
             pass # Do the thing
         else:
             self.logger.logMessage("Unknown Command: ", message)
+            
+            
+            ##DR: Will need to update the elif chain upon addition of further modules, e.g. GPS data request, 
+            ##polling physical sensors, etc.
 
     def operate(self):
         self.mp.start()

@@ -4,10 +4,13 @@ from tkinter import *
 import serial
 from HAB.Operations.GroundMP import GroundMP
 from HAB.Operations.Logger import Logger
+from HAB.Operations.QueueProcessor import QueueProcessor
 
-class CommunicationWindow:
+
+class GroundControl(QueueProcessor):
     def __init__(self):
-        # setting serial
+        QueueProcessor.__init__(self, Logger(self.consolePrint, "Ground.log"))
+
         self.interface = serial.Serial('COM4', 9600)
 
         self.main_window = None
@@ -15,10 +18,14 @@ class CommunicationWindow:
         self.send_btn = None
         self.cnsl_box = None
 
-        self.logger = Logger(self.consolePrint, "Ground.log")
+        self.mp = GroundMP(self, self.interface, self.logger)
 
-        self.mp = GroundMP(self.interface, self.logger.log)
         self.buildGUI()
+
+    # Override
+    # message: Instance of QueueMessage
+    def interpretMessage(self, message):
+        pass
 
     def buildGUI(self):
         #Main Window
@@ -42,7 +49,7 @@ class CommunicationWindow:
         cmd_lbl = Label(self.main_window, text = "Input Command")
         #Command Input Box
         self.cmd_ent = Entry(self.main_window)
-        self.cmd_ent.bind("<Return>", lambda: self.mp.sendInput(self.cmd_ent.get()))
+        self.cmd_ent.bind("<Return>", lambda text: self.mp.sendInput(self.cmd_ent.get()))
 
         #Send Button
         self.send_btn = Button(self.main_window, text = "Send", command=lambda:self.mp.sendInput(self.cmd_ent.get()))
@@ -72,9 +79,7 @@ class CommunicationWindow:
         self.cnsl_box.yview(END)
 
 def main(args):
-    window = CommunicationWindow()
-
-
+    window = GroundControl()
 
 if __name__ == '__main__':
     main(sys.argv)

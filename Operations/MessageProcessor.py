@@ -1,31 +1,27 @@
-import threading
-import serial
 
 null_terminator = '\0'
 unit_separator = '\31'
 
-def buildValue(args):
-    value = ""
-    for arg in args:
-        value += unit_separator + arg
-    if value == "":
-        return None
-    return value
+from abc import ABCMeta
+import threading
+from serial import Serial
+from HAB.Operations.QueueProcessor import QueueMessage, QueueProcessor
+from HAB.Operations.Logger import Logger
 
-def buildMessage(command, args):
-    message = command
-    value = buildValue(args)
-    if value is not None:
-        message += value
-    message += null_terminator
-    return message
 
-class MessageProcessor:
-    def __init__(self, process, interface, log):
+class MessageProcessor(metaclass=ABCMeta):
+    def __init__(self, main, interface, logger):
+        """
+        Message Processsing Class for Serial Communication
+        :type main QueueProcessor
+        :type interface Serial
+        :type logger Logger
+        """
         self.shutdown = False
+        self.main = main
         self.interface = interface
-        self.log = log
-        self.thread = threading.Thread(target=process)
+        self.logger = logger
+        self.thread = threading.Thread(target=self.process)
 
     def start(self):
         self.thread.start()
@@ -38,22 +34,40 @@ class MessageProcessor:
         return self.interface.read().decode()
 
     def send(self, message):
-        self.log("Sending: " + message)
+        self.logger.log("Sending: " + message)
         self.interface.write(message.encode())
 
     def sendInput(self, line):
         split = line.split(" ")
-        message = buildMessage(split[0], split[1:])
+        message = MessageProcessor.buildMessage(split[0], split[1:])
         self.send(message)
+
+    @classmethod
+    def buildValue(cls, args):
+        value = ""
+        for arg in args:
+            value += unit_separator + arg
+        if value == "":
+            return None
+        return value
+
+    @classmethod
+    def buildMessage(cls, command, args):
+        message = command
+        value = MessageProcessor.buildValue(args)
+        if value is not None:
+            message += value
+        message += null_terminator
+        return message
 
     def extract(self, message):
         command, args = self.unmarshal(message)
-        self.log("Receiving: " + message)
+        self.logger.log("Receiving: " + message)
         self.execute(command, args)
 
-    # Must be overriden
     def execute(self, command, args):
-        pass
+        message = QueueMessage(command, args)
+        self.main.sendToQueue(message)
 
     def process(self):
         message = ""

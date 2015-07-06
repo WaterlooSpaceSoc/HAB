@@ -15,9 +15,5 @@ class BalloonMP(MessageProcessor):
     def seekInput(self):
         while not self.shutdown:
             command = input("")
-            # Internal Exit
-            if command.lower() == "exit":
-                self.main.sendToQueue(QueueMessage(command, list))
-            elif command.lower() == "abortflight":
-                self.main.sendToQueue(QueueMessage(command, list))
             self.sendInput(command)
+        raise SystemExit

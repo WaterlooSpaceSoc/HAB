@@ -21,7 +21,7 @@ class MessageProcessor(metaclass=ABCMeta):
         self.main = main
         self.interface = interface
         self.logger = logger
-        self.thread = threading.Thread(target=self.process)
+        self.thread = threading.Thread(target=self.process, name="MessageProcessor")
 
     def start(self):
         self.thread.start()
@@ -34,13 +34,27 @@ class MessageProcessor(metaclass=ABCMeta):
         return self.interface.read().decode()
 
     def send(self, message):
-        self.logger.log("Sending: " + message)
+        self.logger.log("Sending: " + message.replace(unit_separator, " "))
         self.interface.write(message.encode())
 
     def sendInput(self, line):
         split = line.split(" ")
-        message = MessageProcessor.buildMessage(split[0], split[1:])
-        self.send(message)
+        command = split[0]
+        args = split[1:]
+        self.main.sendToQueue(QueueMessage(command, args))
+
+    def relayInput(self, line):
+        split = line.split(" ")
+        command = split[0]
+        args = split[1:]
+        self.main.sendToQueue(QueueMessage("Relay", [command] + args))
+
+    def sendQueueMessage(self, message):
+        """
+        :type message QueueMessage
+        """
+        msg = MessageProcessor.buildMessage(message.command, message.args)
+        self.send(msg)
 
     @classmethod
     def buildValue(cls, args):
@@ -62,7 +76,7 @@ class MessageProcessor(metaclass=ABCMeta):
 
     def extract(self, message):
         command, args = self.unmarshal(message)
-        self.logger.log("Receiving: " + message)
+        self.logger.log("Receiving: " + message.replace(unit_separator, " "))
         self.execute(command, args)
 
     def execute(self, command, args):

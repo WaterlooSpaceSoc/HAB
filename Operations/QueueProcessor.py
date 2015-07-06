@@ -46,7 +46,7 @@ class QueueMessage:
     """
     Data structure to hold the Messages accepted by the QueueProcessor
     """
-    def __init__(self, command, argsList):
+    def __init__(self, command, argsList=list()):
         """
         :type command str
         :type argsList list

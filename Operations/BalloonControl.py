@@ -57,6 +57,8 @@ class BalloonControl(QueueProcessor):
         else:
             self.logger.logMessage("Unknown Command: ", message)
             self.sendToQueue(QueueMessage("Relay", ["UnknownCommand", message.command] + args))
+        ##DR: Will need to update the elif chain upon addition of further modules, e.g. GPS data request,
+        ##polling physical sensors, etc.
 
     def operate(self):
         self.mp.start()

@@ -1,0 +1,50 @@
+#############
+##
+##BASIC TEMPLATE NEEDED FOR INCORPORATION BETWEEN HARDWARE LEVEL AND DATA PROCESSOR
+##
+##
+##Note that making a message into a 'Relay' message will cause the data processor to send the message to the main
+##processor, which sends it via communications to the ground.
+##
+##Otherwise, all messages will be sent into the data processor's separate queue for interpretation by the processor
+##(for example, storing in data file).
+##
+##
+##
+##
+##
+##############
+
+
+
+from HAB.Operations.Commands import RELAY ##List of RELAY commands to be used.
+
+from queue import Queue ##Pretty self-explanatory, using the Python Queue library.
+
+class QueueMessage:
+    """
+    Data structure to hold the Messages accepted by the QueueProcessor
+    """
+    def __init__(self, command, argsList=list()):
+        """
+        :type command str
+        :type argsList list
+        """
+        self.command = command
+        self.args = argsList
+
+    def getArgs(self):
+        return self.args
+
+    def getCommand(self):
+        return self.command
+
+    @classmethod
+    def Relay(cls, message):
+        """
+        :type message QueueMessage
+        """
+        return QueueMessage(RELAY, [message.command] + message.args)
+
+    def __str__(self):
+        return self.command + " " + self.args.__str__()

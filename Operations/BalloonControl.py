@@ -1,37 +1,78 @@
 import sys
-
 import serial
+from HAB.Operations.BalloonMP import BalloonMP
+from HAB.Operations.Commands import *
 from HAB.Operations.Logger import Logger
-from HAB.Operations.MessageProcessor import BalloonMP, buildCommand
+from HAB.Operations.QueueProcessor import QueueProcessor, QueueMessage, QueueTermination
+from HAB.Operations.ConnectionChecker import ConnectionChecker
 
 
-class HAB:
+class BalloonControl(QueueProcessor):
     def __init__(self):
-        self.interface = serial.Serial('COM5', 9600) #DR: Will need to be changed to something like '/dev/ttyUSB0' on the Pi
-        self.logger = Logger(print, "BalloonControlLog.log")
-        self.mp = BalloonMP(self.interface, self.logger.log)
+        QueueProcessor.__init__(self, Logger(lambda line, error=False: sys.stdout.write(line), "Balloon.log"))
+        self.interface = serial.Serial('COM5', 9600)
+        self.mp = BalloonMP(self, self.interface, self.logger)
+        self.cc = ConnectionChecker(self, 30, self.logger)
+        self.inFlight = True
         self.operate()
+
+    # Override
+    def interpretMessage(self, message):
+        """
+        Note: Always use lowercase for comparison
+        :type message QueueMessage
+        """
+        command = message.command.lower()
+        args = message.args
+
+        if command == EXIT:
+            # DO NOT USE in flight, this commands exits the script. Use Cutdown then find the HAB, after that exit.
+            # 2 Step for exit to reduce risk of accidents
+            if self.inFlight:
+                self.logger.logMessage("Cannot Exit while in flight: ", message)
+            else:
+                self.logger.logMessage("Exiting: ", message)
+                raise QueueTermination
+        elif command == ABORT:
+            self.logger.logMessage("Aborting Flight: ", message)
+            self.inFlight = False
+        elif command == RESUME:
+            self.logger.logMessage("Resuming Flight: ", message)
+            self.inFlight = True
+        elif command == CUTDOWN:
+            self.logger.logMessage("Cutting Down: ", message)
+            # Do the thing
+            self.mp.sendQueueMessage(QueueMessage(CUTDOWN_RESPONSE, [Logger.getTime()] + args))
+        elif command == RELAY:
+            if len(args) == 0:
+                self.logger.logMessage("Relay invalid: ", message)
+            else:
+                msg = QueueMessage(args[0], args[1:])
+                self.logger.logMessage("Relaying: ", msg)
+                self.mp.sendQueueMessage(msg)
+        elif command == CONFIRM_CONNECTION:
+            self.cc.confirm()
+            self.logger.logMessage("Confirm Connection: ", message)
+            self.mp.sendQueueMessage(QueueMessage(CONFIRMED_CONNECTION, [Logger.getTime()]))
+        else:
+            self.logger.logMessage("Unknown Command: ", message)
+            self.mp.sendQueueMessage(QueueMessage(UNKNOWN_COMMAND, [message.command] + args))
+        ##DR: Will need to update the elif chain upon addition of further modules, e.g. GPS data request,
+        ##polling physical sensors, etc.
 
     def operate(self):
         self.mp.start()
-        self.sendInput()
+        self.cc.start()
+        self.processQueue()
         self.terminate()
 
-    def sendInput(self):
-        while True:
-            command = input("")
-            if command == "exit" or command == "Exit":
-                break
-            message = buildCommand(command)
-            self.mp.send(message)
-            print("Sending: " + message)
-
     def terminate(self):
+        QueueProcessor.terminate(self)
         self.mp.stop()
-        self.logger.terminate()
+        self.cc.stop()
 
 def main(args):
-    hab = HAB()
+    hab = BalloonControl()
 
 if __name__ == '__main__':
     main(sys.argv)

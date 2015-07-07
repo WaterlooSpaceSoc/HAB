@@ -1,25 +1,28 @@
-import threading
-import serial
+from HAB.Operations.Commands import RELAY
 
 null_terminator = '\0'
 unit_separator = '\31'
 
-def buildResponse(command, value="None"):
-    return _buildMessage("R", command, value)
+from abc import ABCMeta
+import threading
+from serial import Serial
+from HAB.Operations.QueueProcessor import QueueMessage, QueueProcessor
+from HAB.Operations.Logger import Logger
 
-def buildCommand(command, value="None"):
-    return _buildMessage("C", command, value)
 
-def _buildMessage(header, command, value):
-    message = header + unit_separator + command + unit_separator + value + null_terminator
-    return message
-
-class MessageProcessor:
-    def __init__(self, process, interface, log):
+class MessageProcessor(metaclass=ABCMeta):
+    def __init__(self, main, interface, logger):
+        """
+        Message Processsing Class for Serial Communication
+        :type main QueueProcessor
+        :type interface Serial
+        :type logger Logger
+        """
         self.shutdown = False
+        self.main = main
         self.interface = interface
-        self.log = log
-        self.thread = threading.Thread(target=process)
+        self.logger = logger
+        self.thread = threading.Thread(target=self.process, name="MessageProcessor")
 
     def start(self):
         self.thread.start()
@@ -32,12 +35,54 @@ class MessageProcessor:
         return self.interface.read().decode()
 
     def send(self, message):
-        self.log("Sending: " + message)
+        self.logger.log("Sending: " + message.replace(unit_separator, " "))
         self.interface.write(message.encode())
 
-    def execute(self, message):
-        type, command, args = self.unmarshal(message)
-        self.log("Receiving: " + message) # TODO: Something useful
+    def sendInput(self, line):
+        split = line.split(" ")
+        command = split[0]
+        args = split[1:]
+        self.main.sendToQueue(QueueMessage(command, args))
+
+    def relayInput(self, line):
+        split = line.split(" ")
+        command = split[0]
+        args = split[1:]
+        self.main.sendToQueue(QueueMessage(RELAY, [command] + args))
+
+    def sendQueueMessage(self, message):
+        """
+        :type message QueueMessage
+        """
+        msg = MessageProcessor.buildMessage(message.command, message.args)
+        self.send(msg)
+
+    @classmethod
+    def buildValue(cls, args):
+        value = ""
+        for arg in args:
+            value += unit_separator + arg
+        if value == "":
+            return None
+        return value
+
+    @classmethod
+    def buildMessage(cls, command, args):
+        message = command
+        value = MessageProcessor.buildValue(args)
+        if value is not None:
+            message += value
+        message += null_terminator
+        return message
+
+    def extract(self, message):
+        command, args = self.unmarshal(message)
+        self.logger.log("Receiving: " + message.replace(unit_separator, " "))
+        self.execute(command, args)
+
+    def execute(self, command, args):
+        message = QueueMessage(command, args)
+        self.main.sendToQueue(message)
 
     def process(self):
         message = ""
@@ -45,7 +90,7 @@ class MessageProcessor:
             self.interface.timeout = 10
             char = self.receive()
             if char == null_terminator:
-                self.execute(message)
+                self.extract(message)
                 message = ""
             else:
                 message += char
@@ -54,17 +99,9 @@ class MessageProcessor:
     def unmarshal(self, message):
         """
         Unmarshal the message into its components.
-        Form: "X:Command:arg1:arg2..." where : is the unit_separator
-        X can be C for command or R for response.
+        Form: "Command:arg1:arg2..." where : is the unit_separator
         """
         # Note this format is prone to change, I needed something to work with
+        message = message.replace(null_terminator, "")
         split = message.split(unit_separator)
-        return split[0], split[1], split[2:]
-
-class GroundControlMP(MessageProcessor):
-    def __init__(self, interface, log):
-        MessageProcessor.__init__(self, self.process, interface, log)
-
-class BalloonMP(MessageProcessor):
-    def __init__(self, interface, log):
-        MessageProcessor.__init__(self, self.process, interface, log)
+        return split[0], split[1:]

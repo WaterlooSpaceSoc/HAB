@@ -1,7 +1,7 @@
 import sys
 import serial
 from HAB.Operations.BalloonMP import BalloonMP
-from HAB.Operations.Commands import EXIT, ABORT, RESUME, CUTDOWN, RELAY, CONFIRM_CONNECTION, CUTDOWN_RESPONSE
+from HAB.Operations.Commands import *
 from HAB.Operations.Logger import Logger
 from HAB.Operations.QueueProcessor import QueueProcessor, QueueMessage, QueueTermination
 from HAB.Operations.ConnectionChecker import ConnectionChecker
@@ -42,7 +42,7 @@ class BalloonControl(QueueProcessor):
         elif command == CUTDOWN:
             self.logger.logMessage("Cutting Down: ", message)
             # Do the thing
-            self.sendToQueue(QueueMessage("Relay", [CUTDOWN_RESPONSE, Logger.getTime()] + args))
+            self.mp.sendQueueMessage(QueueMessage(CUTDOWN_RESPONSE, [Logger.getTime()] + args))
         elif command == RELAY:
             if len(args) == 0:
                 self.logger.logMessage("Relay invalid: ", message)
@@ -53,10 +53,10 @@ class BalloonControl(QueueProcessor):
         elif command == CONFIRM_CONNECTION:
             self.cc.confirm()
             self.logger.logMessage("Confirm Connection: ", message)
-            self.sendToQueue(QueueMessage("Relay", ["ConfirmedConnection", Logger.getTime()]))
+            self.mp.sendQueueMessage(QueueMessage(CONFIRMED_CONNECTION, [Logger.getTime()]))
         else:
             self.logger.logMessage("Unknown Command: ", message)
-            self.sendToQueue(QueueMessage("Relay", ["UnknownCommand", message.command] + args))
+            self.mp.sendQueueMessage(QueueMessage(UNKNOWN_COMMAND, [message.command] + args))
         ##DR: Will need to update the elif chain upon addition of further modules, e.g. GPS data request,
         ##polling physical sensors, etc.
 

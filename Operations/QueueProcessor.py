@@ -1,6 +1,7 @@
 from abc import ABCMeta, abstractmethod
 from queue import Queue
 import time
+from HAB.Operations.Commands import RELAY
 
 
 class QueueProcessor(metaclass=ABCMeta):
@@ -59,6 +60,13 @@ class QueueMessage:
 
     def getCommand(self):
         return self.command
+
+    @classmethod
+    def Relay(cls, message):
+        """
+        :type message QueueMessage
+        """
+        return QueueMessage(RELAY, [message.command] + message.args)
 
     def __str__(self):
         return self.command + " " + self.args.__str__()

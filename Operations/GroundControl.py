@@ -4,7 +4,7 @@ from tkinter import *
 
 import serial
 import time
-from HAB.Operations.Commands import EXIT, RELAY, CHECK_CONNECTION, CONFIRMED_CONNECTION, UNKNOWN_COMMAND
+from HAB.Operations.Commands import *
 from HAB.Operations.GroundMP import GroundMP
 from HAB.Operations.Logger import Logger
 from HAB.Operations.QueueProcessor import QueueProcessor, QueueMessage, QueueTermination
@@ -52,7 +52,7 @@ class GroundControl(QueueProcessor):
                 self.mp.sendQueueMessage(msg)
         elif command == CHECK_CONNECTION:
             self.logger.logMessage("Check Connection: ", message)
-            self.sendToQueue(QueueMessage("Relay", ["ConfirmConnection", Logger.getTime()]))
+            self.mp.sendQueueMessage(QueueMessage(CONFIRM_CONNECTION, [Logger.getTime()]))
         elif command == CONFIRMED_CONNECTION:
             self.logger.logMessage("Confirmed Connection: ", message)
             # Set a status or something

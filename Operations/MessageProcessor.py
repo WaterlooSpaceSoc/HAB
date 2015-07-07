@@ -1,3 +1,4 @@
+from HAB.Operations.Commands import RELAY
 
 null_terminator = '\0'
 unit_separator = '\31'
@@ -47,7 +48,7 @@ class MessageProcessor(metaclass=ABCMeta):
         split = line.split(" ")
         command = split[0]
         args = split[1:]
-        self.main.sendToQueue(QueueMessage("Relay", [command] + args))
+        self.main.sendToQueue(QueueMessage(RELAY, [command] + args))
 
     def sendQueueMessage(self, message):
         """

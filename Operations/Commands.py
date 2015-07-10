@@ -1,10 +1,17 @@
-EXIT = "Exit".lower()
-ABORT = "Abort".lower()
-RESUME = "Resume".lower()
-CUTDOWN = "Cutdown".lower()
-CUTDOWN_RESPONSE = "CutdownResponse".lower()
-RELAY = "Relay".lower()
-CONFIRM_CONNECTION = "ConfirmConnection".lower()
-CHECK_CONNECTION = "CheckConnection".lower()
-CONFIRMED_CONNECTION = "ConfirmedConnection".lower()
-UNKNOWN_COMMAND = "UnknownCommand".lower()
+EXIT = "Exit"
+ABORT = "Abort"
+RESUME = "Resume"
+CUTDOWN = "Cutdown"
+CUTDOWN_RESPONSE = "CutdownResponse"
+RELAY = "Relay"
+CONFIRM_CONNECTION = "ConfirmConnection"
+CHECK_CONNECTION = "CheckConnection"
+CONFIRMED_CONNECTION = "ConfirmedConnection"
+UNKNOWN_COMMAND = "UnknownCommand"
+ERROR = "Error"
+CONFIRM = "Confirm"
+
+def cmd(input, expect):
+    if input.lower() == expect.lower():
+        return True
+    return False

@@ -2,24 +2,26 @@ from abc import ABCMeta, abstractmethod
 from queue import Queue
 import time
 from HAB.Operations.Commands import RELAY
+from HAB.Operations.Logger import LogLvl
 
 
 class QueueProcessor(metaclass=ABCMeta):
 
-    def __init__(self, logger):
+    def __init__(self, logger, prefix=""):
         self.logger = logger
         self.queue = Queue()
+        self.prefix = prefix
 
     def sendToQueue(self, message):
         if isinstance(message, QueueMessage):
             self.queue.put(message)
-            self.logger.logMessage("Insert in Queue: ", message)
+            self.logger.logMessage(message, "Insert in " + self.prefix + " Queue: ", LogLvl.SILENT)
         else:
-            self.logger.log("Not a QueueMessage: " + message.__str__())
+            self.logger.log(self.prefix + " Not a QueueMessage: " + message.__str__(), LogLvl.ERROR)
 
     def pop(self):
         message = self.queue.get()
-        self.logger.logMessage("Pop from Queue: ", message)
+        self.logger.logMessage(message, "Pop from " + self.prefix + " Queue: ", LogLvl.SILENT)
         return message
 
     def processQueue(self):

@@ -2,16 +2,15 @@ import sys
 import serial
 from HAB.Operations.BalloonMP import BalloonMP
 from HAB.Operations.Commands import *
-from HAB.Operations.Logger import Logger
+from HAB.Operations.Logger import Logger, LogLvl
 from HAB.Operations.QueueProcessor import QueueProcessor, QueueMessage, QueueTermination
 from HAB.Operations.ConnectionChecker import ConnectionChecker
 
 
 class BalloonControl(QueueProcessor):
     def __init__(self):
-        QueueProcessor.__init__(self, Logger(lambda line, error=False: sys.stdout.write(line), "Balloon.log"))
-        self.interface = serial.Serial('COM5', 9600)
-        self.mp = BalloonMP(self, self.interface, self.logger)
+        QueueProcessor.__init__(self, Logger(lambda line, lvl: sys.stdout.write(line), "Balloon.log"), "BC")
+        self.mp = BalloonMP(self, "COM5", self.logger)
         self.cc = ConnectionChecker(self, 30, self.logger)
         self.inFlight = True
         self.operate()
@@ -25,40 +24,45 @@ class BalloonControl(QueueProcessor):
         command = message.command.lower()
         args = message.args
 
-        if command == EXIT:
+        if cmd(command, EXIT):
             # DO NOT USE in flight, this commands exits the script. Use Cutdown then find the HAB, after that exit.
             # 2 Step for exit to reduce risk of accidents
             if self.inFlight:
-                self.logger.logMessage("Cannot Exit while in flight: ", message)
+                self.logger.logMessage( message, "Cannot Exit while in flight: ")
+                self.mp.sendToQueue(QueueMessage("Error", ["In Flight Exit Impossible"]))
             else:
-                self.logger.logMessage("Exiting: ", message)
+                self.logger.logMessage(message)
                 raise QueueTermination
-        elif command == ABORT:
-            self.logger.logMessage("Aborting Flight: ", message)
+        elif cmd(command, ABORT):
+            self.logger.logMessage(message)
+            self.mp.sendToQueue(QueueMessage(CONFIRM, ["Flight Aborted"]))
             self.inFlight = False
-        elif command == RESUME:
-            self.logger.logMessage("Resuming Flight: ", message)
+        elif cmd(command, RESUME):
+            self.logger.logMessage(message)
+            self.mp.sendToQueue(QueueMessage(CONFIRM, ["Flight Resumed"]))
             self.inFlight = True
-        elif command == CUTDOWN:
-            self.logger.logMessage("Cutting Down: ", message)
+        elif cmd(command, CUTDOWN):
+            self.logger.logMessage(message, lvl=LogLvl.SPECIAL)
+            self.cc.confirm()
             # Do the thing
-            self.mp.sendQueueMessage(QueueMessage(CUTDOWN_RESPONSE, [Logger.getTime()] + args))
-        elif command == RELAY:
+            self.mp.sendToQueue(QueueMessage(CUTDOWN_RESPONSE, [Logger.getTime()] + args))
+        elif cmd(command, RELAY):
             if len(args) == 0:
-                self.logger.logMessage("Relay invalid: ", message)
+                self.logger.logMessage(message, "Relay invalid: ")
             else:
                 msg = QueueMessage(args[0], args[1:])
-                self.logger.logMessage("Relaying: ", msg)
-                self.mp.sendQueueMessage(msg)
-        elif command == CONFIRM_CONNECTION:
+                self.logger.logMessage(msg, "Relaying: ")
+                self.mp.sendToQueue(msg)
+        elif cmd(command, CONFIRM_CONNECTION):
             self.cc.confirm()
-            self.logger.logMessage("Confirm Connection: ", message)
-            self.mp.sendQueueMessage(QueueMessage(CONFIRMED_CONNECTION, [Logger.getTime()]))
+            self.logger.logMessage(message)
+            self.mp.sendToQueue(QueueMessage(CONFIRMED_CONNECTION, [Logger.getTime()]))
+        elif cmd(command, ERROR):
+            self.logger.logMessage(message)
+            self.mp.sendToQueue(message)
         else:
-            self.logger.logMessage("Unknown Command: ", message)
-            self.mp.sendQueueMessage(QueueMessage(UNKNOWN_COMMAND, [message.command] + args))
-        ##DR: Will need to update the elif chain upon addition of further modules, e.g. GPS data request,
-        ##polling physical sensors, etc.
+            self.logger.logMessage(message, "Unknown Command: ")
+            self.mp.sendToQueue(QueueMessage(UNKNOWN_COMMAND, [message.command] + args))
 
     def operate(self):
         self.mp.start()

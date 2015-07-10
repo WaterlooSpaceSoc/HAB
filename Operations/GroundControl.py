@@ -2,12 +2,11 @@
 import threading
 from tkinter import *
 
-import serial
-import time
-from HAB.Operations.Commands import *
-from HAB.Operations.GroundMP import GroundMP
-from HAB.Operations.Logger import Logger, LogLvl
-from HAB.Operations.QueueProcessor import QueueProcessor, QueueMessage, QueueTermination
+from HAB.Operations_old.Commands import *
+from HAB.Operations_old.GroundMP import GroundMP
+from HAB.Operations_old.Logger import Logger, LogLvl
+from HAB.Operations.QueueProcessor import QueueMessage, QueueTermination
+from HAB.Operations import QueueProcessor
 
 
 class GroundControl(QueueProcessor):

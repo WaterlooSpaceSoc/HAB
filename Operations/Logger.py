@@ -1,8 +1,14 @@
 from datetime import datetime
-from HAB.Operations.QueueProcessor import QueueMessage
 
 timeFormat = "%H:%M:%S.%f: "
 dateFormat = "%Y-%m-%d %H:%M:%S.%f: "
+
+class LogLvl:
+    SILENT = "silent"
+    NORMAL = "normal"
+    ERROR = "error"
+    SPECIAL = "special"
+    RADIO = "radio"
 
 class Logger:
     def __init__(self, output, fileName):
@@ -10,16 +16,14 @@ class Logger:
         self.output = output
         self.file.write("----------------\nStarting Operations: " + datetime.now().strftime(dateFormat) + "\n\n")
 
-    def log(self, message, error=False):
+    def log(self, message, lvl=LogLvl.NORMAL):
         line = (datetime.now().strftime(timeFormat) + message + "\n")
         self.file.write(line)
-        self.output(line, error=error)
+        if lvl != LogLvl.SILENT:
+            self.output(line, lvl)
 
-    def logMessage(self, prefix, message, error=False):
-        """
-        :type message QueueMessage
-        """
-        self.log(prefix + message.__str__(), error=error)
+    def logMessage(self, message, prefix="", lvl=LogLvl.NORMAL):
+        self.log(prefix + message.__str__(), lvl)
 
     @classmethod
     def getTime(cls):
@@ -28,3 +32,5 @@ class Logger:
     def terminate(self):
         self.file.write("\nEnding Operations: " + datetime.now().strftime(dateFormat) + "\n----------------\n")
         self.file.close()
+
+

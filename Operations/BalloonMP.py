@@ -4,8 +4,8 @@ from HAB.Operations.QueueProcessor import QueueMessage
 
 
 class BalloonMP(MessageProcessor):
-    def __init__(self, main, interface, logger):
-        MessageProcessor.__init__(self, main, interface, logger)
+    def __init__(self, main, port, logger):
+        MessageProcessor.__init__(self, main, port, logger)
         self.input_thread = threading.Thread(target=self.seekInput, daemon=True)
 
     def start(self):

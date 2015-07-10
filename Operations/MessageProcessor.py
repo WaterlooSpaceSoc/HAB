@@ -1,3 +1,4 @@
+import time
 from HAB.Operations.Commands import RELAY
 
 null_terminator = '\0'
@@ -6,23 +7,23 @@ unit_separator = '\31'
 from abc import ABCMeta
 import threading
 from serial import Serial
-from HAB.Operations.QueueProcessor import QueueMessage, QueueProcessor
-from HAB.Operations.Logger import Logger
+from HAB.Operations.QueueProcessor import QueueMessage, QueueProcessor, QueueTermination
+from HAB.Operations.Logger import Logger, LogLvl
 
 
-class MessageProcessor(metaclass=ABCMeta):
-    def __init__(self, main, interface, logger):
+class MessageProcessor(QueueProcessor, metaclass=ABCMeta):
+    def __init__(self, main, port, logger):
         """
         Message Processsing Class for Serial Communication
         :type main QueueProcessor
-        :type interface Serial
+        :type port Serial
         :type logger Logger
         """
+        QueueProcessor.__init__(self, logger, "MP")
         self.shutdown = False
         self.main = main
-        self.interface = interface
-        self.logger = logger
-        self.thread = threading.Thread(target=self.process, name="MessageProcessor")
+        self.interface = Serial(port, 9600, timeout=0.1)
+        self.thread = threading.Thread(target=self.processQueue, name="MessageProcessor")
 
     def start(self):
         self.thread.start()
@@ -34,8 +35,9 @@ class MessageProcessor(metaclass=ABCMeta):
     def receive(self):
         return self.interface.read().decode()
 
+    # Private
     def send(self, message):
-        self.logger.log("Sending: " + message.replace(unit_separator, " "))
+        self.logger.log("Sending: " + message.replace(unit_separator, " "), LogLvl.RADIO)
         self.interface.write(message.encode())
 
     def sendInput(self, line):
@@ -50,6 +52,7 @@ class MessageProcessor(metaclass=ABCMeta):
         args = split[1:]
         self.main.sendToQueue(QueueMessage(RELAY, [command] + args))
 
+    # Private
     def sendQueueMessage(self, message):
         """
         :type message QueueMessage
@@ -77,24 +80,39 @@ class MessageProcessor(metaclass=ABCMeta):
 
     def extract(self, message):
         command, args = self.unmarshal(message)
-        self.logger.log("Receiving: " + message.replace(unit_separator, " "))
+        self.logger.log("Receiving: " + message.replace(unit_separator, " "), LogLvl.RADIO)
         self.execute(command, args)
 
     def execute(self, command, args):
         message = QueueMessage(command, args)
         self.main.sendToQueue(message)
 
-    def process(self):
+    def interpretMessage(self, message):
+        self.sendQueueMessage(message)
+
+    def processQueue(self):
+        while not self.shutdown:
+            if self.queue.qsize() == 0:
+                time.sleep(0.1)
+            else:
+                try:
+                    self.interpretMessage(self.pop())
+                except QueueTermination:
+                    break
+            self.processReception()
+        raise SystemExit
+
+    def processReception(self):
         message = ""
         while not self.shutdown:
-            self.interface.timeout = 10
             char = self.receive()
-            if char == null_terminator:
+            if len(char) == 0:
+                break
+            elif char == null_terminator:
                 self.extract(message)
-                message = ""
+                break
             else:
                 message += char
-        raise SystemExit
 
     def unmarshal(self, message):
         """

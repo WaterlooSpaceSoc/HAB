@@ -6,22 +6,20 @@ import serial
 import time
 from HAB.Operations.Commands import *
 from HAB.Operations.GroundMP import GroundMP
-from HAB.Operations.Logger import Logger
+from HAB.Operations.Logger import Logger, LogLvl
 from HAB.Operations.QueueProcessor import QueueProcessor, QueueMessage, QueueTermination
 
 
 class GroundControl(QueueProcessor):
     def __init__(self):
-        QueueProcessor.__init__(self, Logger(self.consolePrint, "Ground.log"))
-
-        self.interface = serial.Serial('COM4', 9600)
+        QueueProcessor.__init__(self, Logger(self.consolePrint, "Ground.log"), "GC")
 
         self.main_window = None
         self.cmd_ent = None
         self.send_btn = None
         self.cnsl_box = None
 
-        self.mp = GroundMP(self, self.interface, self.logger)
+        self.mp = GroundMP(self, "COM4", self.logger)
         self.execThread = threading.Thread(target=self.operate, daemon=False, name="TaskExecutor")
         self.buildGUI()
 
@@ -40,26 +38,32 @@ class GroundControl(QueueProcessor):
         command = message.command.lower()
         args = message.args
 
-        if command == EXIT:
-            self.logger.logMessage("Exiting: ", message)
+        if cmd(command, EXIT):
+            self.logger.logMessage(message)
             raise QueueTermination
-        elif command == RELAY:
+        elif cmd(command, RELAY):
             if len(args) == 0:
-                self.logger.logMessage("Relay invalid: ", message)
+                self.logger.logMessage(message, "Relay invalid: ", LogLvl.ERROR)
             else:
                 msg = QueueMessage(args[0], args[1:])
-                self.logger.logMessage("Relaying: ", msg)
-                self.mp.sendQueueMessage(msg)
-        elif command == CHECK_CONNECTION:
-            self.logger.logMessage("Check Connection: ", message)
-            self.mp.sendQueueMessage(QueueMessage(CONFIRM_CONNECTION, [Logger.getTime()]))
-        elif command == CONFIRMED_CONNECTION:
-            self.logger.logMessage("Confirmed Connection: ", message)
+                self.logger.logMessage(msg, "Relaying: ")
+                self.mp.sendToQueue(msg)
+        elif cmd(command, CHECK_CONNECTION):
+            self.logger.logMessage(message)
+            self.mp.sendToQueue(QueueMessage(CONFIRM_CONNECTION, [Logger.getTime()]))
+        elif cmd(command, CONFIRMED_CONNECTION):
+            self.logger.logMessage(message)
             # Set a status or something
-        elif command == UNKNOWN_COMMAND:
-            self.logger.logMessage("Balloon Unknown Command: ", message, error=True)
+        elif cmd(command, CUTDOWN_RESPONSE):
+            self.logger.logMessage(message, lvl=LogLvl.SPECIAL)
+        elif cmd(command, CONFIRM):
+            self.logger.logMessage(message, lvl=LogLvl.SPECIAL)
+        elif cmd(command, UNKNOWN_COMMAND):
+            self.logger.logMessage(message, "Balloon Unknown Command: ", LogLvl.ERROR)
+        elif cmd(command, ERROR):
+            self.logger.logMessage(message, lvl=LogLvl.ERROR)
         else:
-            self.logger.logMessage("Ground Unknown Command: ", message, error=True)
+            self.logger.logMessage(message, "Ground Unknown Command: ", LogLvl.ERROR)
 
     def buildGUI(self):
         #Main Window
@@ -72,8 +76,10 @@ class GroundControl(QueueProcessor):
         # Console Output Text Box
         self.cnsl_box = Text(cnsl_fr, width=100, heigh=30, yscrollcommand=cnsl_yscroll.set, background="black")
         cnsl_yscroll.config(command=self.cnsl_box.yview)
-        self.cnsl_box.tag_configure("green", foreground="green")
-        self.cnsl_box.tag_configure("red", foreground="red")
+        self.cnsl_box.tag_configure(LogLvl.NORMAL, foreground="lawn green")
+        self.cnsl_box.tag_configure(LogLvl.ERROR, foreground="red")
+        self.cnsl_box.tag_configure(LogLvl.SPECIAL, foreground="turquoise1")
+        self.cnsl_box.tag_configure(LogLvl.RADIO, foreground="wheat")
         self.cnsl_box.config(state=DISABLED)
         # Command Input Box
         self.cmd_ent = Entry(self.main_window, background="gray14", foreground="green")
@@ -94,7 +100,13 @@ class GroundControl(QueueProcessor):
         """
         :type field Entry
         """
-        self.mp.relayInput(field.get())
+        line = field.get()
+        # Flag parsing
+        if " -s" in line:
+            line = line.replace(" -s", "")
+            self.mp.sendInput(line)
+        else:
+            self.mp.relayInput(line)
         field.delete(0, END)
 
     def start(self):
@@ -109,11 +121,9 @@ class GroundControl(QueueProcessor):
         self.mp.stop()
         self.main_window.destroy()
 
-    def consolePrint(self, inputString, error=False):
+    def consolePrint(self, inputString, lvl):
         self.cnsl_box.config(state=NORMAL)
-        tag = "green"
-        if error:
-            tag = "red"
+        tag = lvl
         self.cnsl_box.insert(END, inputString, tag)
         self.cnsl_box.config(state=DISABLED)
         self.cnsl_box.yview(END)

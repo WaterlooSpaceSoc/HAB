@@ -48,7 +48,7 @@ class ConnectionChecker:
                 time.sleep(self.interval/3)
             else:
                 self.sendCutdown()
-                self.stop()
+                time.sleep(self.interval)
         raise SystemExit
 
 

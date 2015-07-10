@@ -1,4 +1,4 @@
-from HAB.Operations.MessageProcessor import MessageProcessor
+from HAB.Operations import MessageProcessor
 
 
 class GroundMP(MessageProcessor):

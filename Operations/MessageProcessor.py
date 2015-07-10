@@ -1,5 +1,6 @@
 import time
-from HAB.Operations.Commands import RELAY
+
+from HAB.Operations_old.Commands import RELAY
 
 null_terminator = '\0'
 unit_separator = '\31'
@@ -7,8 +8,9 @@ unit_separator = '\31'
 from abc import ABCMeta
 import threading
 from serial import Serial
-from HAB.Operations.QueueProcessor import QueueMessage, QueueProcessor, QueueTermination
-from HAB.Operations.Logger import Logger, LogLvl
+from HAB.Operations.QueueProcessor import QueueMessage, QueueTermination
+from HAB.Operations import QueueProcessor
+from Logger import LogLvl
 
 
 class MessageProcessor(QueueProcessor, metaclass=ABCMeta):

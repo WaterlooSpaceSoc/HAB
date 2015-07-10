@@ -1,7 +1,8 @@
 from abc import ABCMeta, abstractmethod
 from queue import Queue
 import time
-from HAB.Operations.Commands import RELAY
+
+from HAB.Operations_old.Commands import RELAY
 from HAB.Operations.Logger import LogLvl
 
 

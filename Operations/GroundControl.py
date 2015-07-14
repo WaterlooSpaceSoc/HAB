@@ -5,8 +5,7 @@ from tkinter import *
 from Commands import *
 from GroundMP import GroundMP
 from Logger import Logger, LogLvl
-from QueueProcessor import QueueMessage, QueueTermination
-import QueueProcessor
+from QueueProcessor import QueueMessage, QueueTermination, QueueProcessor
 
 
 class GroundControl(QueueProcessor):
@@ -19,7 +18,7 @@ class GroundControl(QueueProcessor):
         self.cnsl_box = None
 
         self.mp = GroundMP(self, "COM4", self.logger)
-        self.execThread = threading.Thread(target=self.operate, daemon=False, name="TaskExecutor")
+        self.execThread = threading.Thread(target=self.operate, name="TaskExecutor")
         self.buildGUI()
 
     def operate(self):

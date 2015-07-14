@@ -1,4 +1,4 @@
-import MessageProcessor
+from MessageProcessor import MessageProcessor
 
 
 class GroundMP(MessageProcessor):

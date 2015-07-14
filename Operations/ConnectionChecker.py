@@ -1,10 +1,9 @@
 import threading
 import time
 
-from HAB.Operations_old.Commands import CUTDOWN, RELAY, CHECK_CONNECTION
-from HAB.Operations_old.Logger import Logger
-from HAB.Operations.QueueProcessor import QueueMessage
-from HAB.Operations import QueueProcessor
+from Commands import CUTDOWN, RELAY, CHECK_CONNECTION
+from Logger import Logger
+from QueueProcessor import QueueMessage, QueueProcessor
 
 
 class ConnectionChecker:
@@ -19,7 +18,8 @@ class ConnectionChecker:
         self.logger = logger
         self.shutdown = False
         self.confirmed = True
-        self.thread = threading.Thread(target=self.process, daemon=True)
+        self.thread = threading.Thread(target=self.process)
+        self.thread.setDaemon(True)
 
     def start(self):
         self.thread.start()

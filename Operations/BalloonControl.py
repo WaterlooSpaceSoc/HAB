@@ -3,8 +3,7 @@ import sys
 from BalloonMP import BalloonMP
 from Commands import *
 from Logger import Logger, LogLvl
-from QueueProcessor import QueueMessage, QueueTermination
-import QueueProcessor
+from QueueProcessor import QueueProcessor, QueueMessage, QueueTermination
 from ConnectionChecker import ConnectionChecker
 
 

@@ -1,11 +1,11 @@
 import sys
 
-from HAB.Operations_old.BalloonMP import BalloonMP
-from HAB.Operations_old.Commands import *
-from HAB.Operations_old.Logger import Logger, LogLvl
-from HAB.Operations.QueueProcessor import QueueMessage, QueueTermination
-from HAB.Operations import QueueProcessor
-from HAB.Operations_old.ConnectionChecker import ConnectionChecker
+from BalloonMP import BalloonMP
+from Commands import *
+from Logger import Logger, LogLvl
+from QueueProcessor import QueueMessage, QueueTermination
+import QueueProcessor
+from ConnectionChecker import ConnectionChecker
 
 
 class BalloonControl(QueueProcessor):

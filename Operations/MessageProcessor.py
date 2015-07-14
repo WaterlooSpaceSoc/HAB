@@ -8,8 +8,8 @@ unit_separator = '\31'
 from abc import ABCMeta
 import threading
 from serial import Serial
-from HAB.Operations.QueueProcessor import QueueMessage, QueueTermination
-from HAB.Operations import QueueProcessor
+from QueueProcessor import QueueMessage, QueueTermination
+import QueueProcessor
 from Logger import LogLvl
 
 

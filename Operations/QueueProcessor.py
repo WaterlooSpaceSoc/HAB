@@ -2,8 +2,8 @@ from abc import ABCMeta, abstractmethod
 from queue import Queue
 import time
 
-from HAB.Operations_old.Commands import RELAY
-from HAB.Operations.Logger import LogLvl
+from Commands import RELAY
+from Logger import LogLvl
 
 
 class QueueProcessor(metaclass=ABCMeta):

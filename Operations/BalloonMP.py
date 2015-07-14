@@ -1,6 +1,6 @@
 import threading
 
-from HAB.Operations_old.MessageProcessor import MessageProcessor
+import MessageProcessor
 
 
 class BalloonMP(MessageProcessor):

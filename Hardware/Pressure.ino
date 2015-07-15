@@ -1,4 +1,5 @@
 // Taken from BMP sensor library example, uses analog pins 4 and 5 on the arduino.
+//July 14th 2015
 
 /* SFE_BMP180 altitude example sketch
 

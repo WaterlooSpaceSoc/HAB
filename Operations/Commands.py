@@ -1,3 +1,4 @@
+# System Commands
 EXIT = "Exit"
 ABORT = "Abort"
 RESUME = "Resume"
@@ -10,6 +11,12 @@ CONFIRMED_CONNECTION = "ConfirmedConnection"
 UNKNOWN_COMMAND = "UnknownCommand"
 ERROR = "Error"
 CONFIRM = "Confirm"
+
+# Sensor Commands
+HUMIDITY = "Humidity"
+GPS = "GPS"
+PRESSURE = "Pressure"
+TEMPERATURE = "Temperature"
 
 def cmd(input, expect):
     if input.lower() == expect.lower():

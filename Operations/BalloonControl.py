@@ -1,5 +1,5 @@
 import sys
-
+from ArduinoMP import ArduinoMP
 from BalloonMP import BalloonMP
 from Commands import *
 from Logger import Logger, LogLvl
@@ -8,9 +8,10 @@ from ConnectionChecker import ConnectionChecker
 
 
 class BalloonControl(QueueProcessor):
-    def __init__(self):
+    def __init__(self, port="COM5", inoport="COM3"):
         QueueProcessor.__init__(self, Logger(lambda line, lvl: sys.stdout.write(line), "Balloon.log"), "BC")
-        self.mp = BalloonMP(self, "COM5", self.logger)
+        self.mp = BalloonMP(self, port, self.logger)
+        self.inomp = ArduinoMP(self, inoport, self.logger)
         self.cc = ConnectionChecker(self, 30, self.logger)
         self.inFlight = True
         self.operate()
@@ -57,6 +58,8 @@ class BalloonControl(QueueProcessor):
             self.cc.confirm()
             self.logger.logMessage(message)
             self.mp.sendToQueue(QueueMessage(CONFIRMED_CONNECTION, [Logger.getTime()]))
+        elif cmd(command, ARDUINO_RELAY):
+            self.inomp.sendToQueue(message)
         elif cmd(command, ERROR):
             self.logger.logMessage(message)
             self.mp.sendToQueue(message)
@@ -66,6 +69,7 @@ class BalloonControl(QueueProcessor):
 
     def operate(self):
         self.mp.start()
+        self.inomp.start()
         self.cc.start()
         self.processQueue()
         self.terminate()
@@ -73,10 +77,14 @@ class BalloonControl(QueueProcessor):
     def terminate(self):
         QueueProcessor.terminate(self)
         self.mp.stop()
+        self.inomp.stop()
         self.cc.stop()
 
 def main(args):
-    hab = BalloonControl()
+    if(len(args) > 1):
+        hab = BalloonControl(args[0], args[1])
+    else:
+        hab = BalloonControl()
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])

@@ -9,7 +9,7 @@ from QueueProcessor import QueueMessage, QueueTermination, QueueProcessor
 
 
 class GroundControl(QueueProcessor):
-    def __init__(self):
+    def __init__(self, port="COM4"):
         QueueProcessor.__init__(self, Logger(self.consolePrint, "Ground.log"), "GC")
 
         self.main_window = None
@@ -17,7 +17,7 @@ class GroundControl(QueueProcessor):
         self.send_btn = None
         self.cnsl_box = None
 
-        self.mp = GroundMP(self, "COM4", self.logger)
+        self.mp = GroundMP(self, port, self.logger)
         self.execThread = threading.Thread(target=self.operate, name="TaskExecutor")
         self.buildGUI()
 
@@ -127,7 +127,10 @@ class GroundControl(QueueProcessor):
         self.cnsl_box.yview(END)
 
 def main(args):
-    groundControl = GroundControl()
+    if(len(args) > 0):
+        hab = GroundControl(args[0])
+    else:
+        hab = GroundControl()
 
 if __name__ == '__main__':
-    main(sys.argv)
+    main(sys.argv[1:])

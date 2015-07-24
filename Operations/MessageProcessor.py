@@ -13,17 +13,17 @@ from Logger import LogLvl
 
 
 class MessageProcessor(QueueProcessor, metaclass=ABCMeta):
-    def __init__(self, main, port, logger):
+    def __init__(self, main, port, logger, baud=9600, name="MP"):
         """
         Message Processsing Class for Serial Communication
         :type main QueueProcessor
         :type port Serial
         :type logger Logger
         """
-        QueueProcessor.__init__(self, logger, "MP")
+        QueueProcessor.__init__(self, logger, name)
         self.shutdown = False
         self.main = main
-        self.interface = Serial(port, 9600, timeout=0.1)
+        self.interface = Serial(port, baud, timeout=0.1)
         self.thread = threading.Thread(target=self.processQueue, name="MessageProcessor")
 
     def start(self):

@@ -11,6 +11,7 @@ CONFIRMED_CONNECTION = "ConfirmedConnection"
 UNKNOWN_COMMAND = "UnknownCommand"
 ERROR = "Error"
 CONFIRM = "Confirm"
+ARDUINO_RELAY = "ArduinoRelay"
 
 # Sensor Commands
 HUMIDITY = "Humidity"

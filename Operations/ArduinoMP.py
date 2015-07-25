@@ -15,4 +15,4 @@ class ArduinoMP(MessageProcessor):
         command = message.command.lower()
         args = message.args
         if cmd(command, ARDUINO_RELAY):
-            self.sendArduino("R")
+            self.sendArduino(args[0])

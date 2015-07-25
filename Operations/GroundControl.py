@@ -56,6 +56,8 @@ class GroundControl(QueueProcessor):
             self.logger.logMessage(message, lvl=LogLvl.SPECIAL)
         elif cmd(command, CONFIRM):
             self.logger.logMessage(message, lvl=LogLvl.SPECIAL)
+        elif cmd(command, ARDUINO_RESPONSE):
+            self.logger.logMessage(message, lvl=LogLvl.SPECIAL)
         elif cmd(command, UNKNOWN_COMMAND):
             self.logger.logMessage(message, "Balloon Unknown Command: ", LogLvl.ERROR)
         elif cmd(command, ERROR):

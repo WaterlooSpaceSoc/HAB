@@ -58,8 +58,21 @@ class BalloonControl(QueueProcessor):
             self.cc.confirm()
             self.logger.logMessage(message)
             self.mp.sendToQueue(QueueMessage(CONFIRMED_CONNECTION, [Logger.getTime()]))
-        elif cmd(command, ARDUINO_RELAY):
-            self.inomp.sendToQueue(message)
+        elif cmd(command, ARDUINO_RESPONSE):
+            self.logger.logMessage(message)
+            self.mp.sendToQueue(message)
+        elif cmd(command, GPS):
+            self.logger.logMessage(message)
+            self.inomp.sendToQueue(QueueMessage(ARDUINO_RELAY, [ARDUINO_GPS]))
+        elif cmd(command, HUMIDITY):
+            self.logger.logMessage(message)
+            self.inomp.sendToQueue(QueueMessage(ARDUINO_RELAY, [ARDUINO_HUMIDITY]))
+        elif cmd(command, BAROMETER):
+            self.logger.logMessage(message)
+            self.inomp.sendToQueue(QueueMessage(ARDUINO_RELAY, [ARDUINO_BAROMETER]))
+        elif cmd(command, TIMESTAMP):
+            self.logger.logMessage(message)
+            self.inomp.sendToQueue(QueueMessage(ARDUINO_RELAY, [ARDUINO_TIMESTAMP]))
         elif cmd(command, ERROR):
             self.logger.logMessage(message)
             self.mp.sendToQueue(message)

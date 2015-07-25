@@ -28,5 +28,9 @@ void sendResponse(String response){
   Serial.write('\0');
 }
 
+void sendData(String dataType, String data){
+  sendResponse("ArduinoResponse " + dataType + " " + data)
+}
+
 // Data Scripts Go Under here
 

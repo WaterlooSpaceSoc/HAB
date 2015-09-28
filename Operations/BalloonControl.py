@@ -8,7 +8,7 @@ from ConnectionChecker import ConnectionChecker
 
 
 class BalloonControl(QueueProcessor):
-    def __init__(self, port="COM5", inoport="COM3"):
+    def __init__(self, port="COM5", inoport="COM6"):
         QueueProcessor.__init__(self, Logger(lambda line, lvl: sys.stdout.write(line), "Balloon.log"), "BC")
         self.mp = BalloonMP(self, port, self.logger)
         self.inomp = ArduinoMP(self, inoport, self.logger)

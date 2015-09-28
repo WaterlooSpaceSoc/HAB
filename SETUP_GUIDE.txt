@@ -1,0 +1,20 @@
+IntelliJ: (Should be similar for PyCharm and even simpler)
+
+Instructions to setup IntelliJ or PyCharm for the development of the python communication program.
+
+1. Get a free license fro non-commercial use with @uwaterloo.ca email.
+2. Download and Install IntelliJ
+3. Install the Python plugin
+4. Create a project. Inside the project, create a folder HAB, within that folder clone the repository.
+5. In Project Structure configure the Python SDK, Python 3.2.x is recommended since it is the version installed on the Pi.
+6. Set the Operations folder as a 'Sources Root'
+7. Install pip for Python if it not yet installed.
+8. Open the 'Manage Python Package' and add 'pyserial'
+9. The project should not work correctly.
+
+Virtual Serial Port Emulator:
+
+1. Download and install VSPE.
+2. In the folder Tools, there is a basic Serial port setup to emulate a bridge between ground and balloon as well as an Arduino which won't respond.
+3. Load and Start COMBRidge_Ino.vspe
+

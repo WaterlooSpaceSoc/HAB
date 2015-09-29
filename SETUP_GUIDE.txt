@@ -6,12 +6,12 @@ Instructions to setup IntelliJ or PyCharm for the development of the python comm
 2. Download and Install IntelliJ (or PyCharm)
 3. Install the Python plugin
 4. Create a Folder named HAB, within that folder clone the git repository.
-5. Import HAB as a project in IntelliJ.
+5. Open the HAB folder in IntelliJ.
 6. In Project Structure configure the Python SDK, Python 3.2.x is recommended since it is the version installed on the Pi.
 7. Set the Operations folder as a 'Sources Root' (Might not be necessary, only for those having an import problem)
 8. Install pip for Python if it not yet installed.
 9. Open the 'Manage Python Package' and add 'pyserial'
-10. The project should not work correctly.
+10. The project should now work correctly.
 
 Virtual Serial Port Emulator:
 

@@ -2,6 +2,11 @@
 #
 # Requires installing PyQt5 (I suggst using the .exe installer):
 # http://pyqt.sourceforge.net/Docs/PyQt5/installation.html
+#
+# PyQt5 Tutorial:
+# http://zetcode.com/gui/pyqt5/
+# PyQt5 Reference:
+# http://pyqt.sourceforge.net/Docs/PyQt5/
 
 import sys
 from PyQt5 import QtGui, QtWidgets, QtCore
@@ -53,16 +58,18 @@ class CommWindow (QtWidgets.QMainWindow):
         self.toolbar.addAction(cutDownAction)
 
         # Create the command line interface
-        lblCommand = QtWidgets.QLabel('Command Line')
-        boxCommand = QtWidgets.QTextEdit()
-        lineCommand = QtWidgets.QLineEdit()
+        self.lblCommand = QtWidgets.QLabel('Command Line')
+        self.boxCommand = QtWidgets.QTextEdit()
+        self.boxCommand.setReadOnly(True)
+        self.lineCommand = QtWidgets.QLineEdit()
+        self.lineCommand.returnPressed.connect(self.executeCommand)
 
         # Create the grid layout and place all the widgets
         grid = QtWidgets.QGridLayout()
         grid.setSpacing(10)
-        grid.addWidget(lblCommand, 1, 0)
-        grid.addWidget(boxCommand, 2, 0)
-        grid.addWidget(lineCommand, 3, 0)
+        grid.addWidget(self.lblCommand, 1, 0)
+        grid.addWidget(self.boxCommand, 2, 0)
+        grid.addWidget(self.lineCommand, 3, 0)
 
         # A QMainWindow contains the central widget, which contains the layout grid
         centralWidget = QtWidgets.QWidget() 
@@ -77,6 +84,16 @@ class CommWindow (QtWidgets.QMainWindow):
         self.setWindowTitle('HAB Communications')
         self.setWindowIcon(QtGui.QIcon('resHAB/HABlogo.png'))
         self.show()
+
+    def executeCommand(self):
+        command = self.lineCommand.text()
+        self.boxCommand.append(command)
+
+        # TODO: Add commands
+        
+        self.lineCommand.clear()
+
+        
 
 
 

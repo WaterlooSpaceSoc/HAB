@@ -76,6 +76,9 @@ class BalloonControl(QueueProcessor):
         elif cmd(command, ERROR):
             self.logger.logMessage(message)
             self.mp.sendToQueue(message)
+        elif cmd(command, PICTURE):
+            self.logger.logMessage(message)
+            self.mp.sendToQueue(message)
         else:
             self.logger.logMessage(message, "Unknown Command: ")
             self.mp.sendToQueue(QueueMessage(UNKNOWN_COMMAND, [message.command] + args))

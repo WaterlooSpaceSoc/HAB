@@ -19,6 +19,7 @@ HUMIDITY = "Humidity"
 GPS = "GPS"
 BAROMETER = "Barometer"
 TIMESTAMP = "Timestamp"
+PICTURE = "Picture"
 
 # Arduino Commands
 ARDUINO_GPS = "G"

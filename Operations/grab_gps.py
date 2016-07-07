@@ -1,5 +1,5 @@
 #! /usr/bin/python
-# Written by Dan Mandle http://dan.mandle.me September 2012
+# Written by Daniel Richard - danielrichard.net 2016
 # License: GPL 2.0
  
 import os
@@ -37,7 +37,25 @@ if __name__ == '__main__':
  
       #os.system('clear')
       subprocess.call("echo '" + "********************" + "' >> gps_log.txt", shell=True)
-      
+      subprocess.call("echo '" + "LAT " + str(gpsd.fix.latitude) + "' >> gps_log.txt", shell=True)
+      subprocess.call("echo '" + "LON " + str(gpsd.fix.longitude) + "' >> gps_log.txt", shell=True)
+      subprocess.call("echo '" + "TIME " + str(gpsd.utc) + ' + ' + str(gpsd.fix.time) + "' >> gps_log.txt", shell=True)
+      subprocess.call("echo '" + "ALT " + str(gpsd.fix.altitude) + "' >> gps_log.txt", shell=True)
+      subprocess.call("echo '" + "SPD " + str(gpsd.fix.speed) + "' >> gps_log.txt", shell=True)
+      subprocess.call("echo '" + "CLIMB " + str(gpsd.fix.climb) + "' >> gps_log.txt", shell=True)
+      subprocess.call("echo '" + "********************" + "' >> gps_log.txt", shell=True)
+      print("finished writing to file")
+ 
+      time.sleep(25) #set to whatever
+ 
+  except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
+    print "\nKilling Thread..."
+    gpsp.running = False
+    gpsp.join() # wait for the thread to finish what it's doing
+  print "Done.\nExiting."
+
+##Best multi-line commenting ever.
+if False:
       print '----------------------------------------'
       print 'latitude    ' , gpsd.fix.latitude
       print 'longitude   ' , gpsd.fix.longitude
@@ -53,11 +71,3 @@ if __name__ == '__main__':
       print 'mode        ' , gpsd.fix.mode
       print
       print 'sats        ' , gpsd.satellites
- 
-      time.sleep(5) #set to whatever
- 
-  except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
-    print "\nKilling Thread..."
-    gpsp.running = False
-    gpsp.join() # wait for the thread to finish what it's doing
-  print "Done.\nExiting."

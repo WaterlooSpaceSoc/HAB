@@ -7,10 +7,12 @@ from gps import *
 from time import *
 import time
 import threading
+
+import subprocess
  
 gpsd = None #seting the global variable
  
-os.system('clear') #clear the terminal (optional)
+#os.system('clear') #clear the terminal (optional)
  
 class GpsPoller(threading.Thread):
   def __init__(self):
@@ -33,10 +35,9 @@ if __name__ == '__main__':
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
  
-      os.system('clear')
- 
-      print
-      print ' GPS reading'
+      #os.system('clear')
+      subprocess.call("echo '" + "********************" + "' >> gps_log.txt", shell=True)
+      
       print '----------------------------------------'
       print 'latitude    ' , gpsd.fix.latitude
       print 'longitude   ' , gpsd.fix.longitude

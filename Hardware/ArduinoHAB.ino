@@ -14,8 +14,8 @@ static const uint32_t GPSBaud = 9600;
 static const char RELAY = 'R';
 static const char BAROMETER = 'B';
 static const char HUMIDITY = 'H';
-static const char GPSstamp = 'T';
-static const char GPSdata = 'G';
+//static const char GPSstamp = 'T';
+//static const char GPSdata = 'G';
 //static const char RELAY = 'R';
 
 String getFloatString(float x, byte precision){

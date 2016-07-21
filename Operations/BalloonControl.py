@@ -6,6 +6,10 @@ from Logger import Logger, LogLvl
 from QueueProcessor import QueueProcessor, QueueMessage, QueueTermination
 from ConnectionChecker import ConnectionChecker
 
+#Update July 21 2016
+##Adding in popen for terminal
+from subprocess import popen
+
 
 class BalloonControl(QueueProcessor):
     def __init__(self, port="COM5", inoport="COM6"):
@@ -80,6 +84,7 @@ class BalloonControl(QueueProcessor):
             ##Hopefully this won't break everything.
             self.logger.logMessage(message)
             #self.mp.sendToQueue(message)
+            
             
         else:
             self.logger.logMessage(message, "Unknown Command: ")

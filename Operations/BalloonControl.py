@@ -9,7 +9,7 @@ from ConnectionChecker import ConnectionChecker
 #Update July 21 2016
 ##Adding in popen for terminal
 from subprocess import popen
-
+import datetime
 
 class BalloonControl(QueueProcessor):
     def __init__(self, port="COM5", inoport="COM6"):
@@ -84,6 +84,29 @@ class BalloonControl(QueueProcessor):
             ##Hopefully this won't break everything.
             self.logger.logMessage(message)
             #self.mp.sendToQueue(message)
+            timestring = datetime.strftime(datetime.now(), '%H:%M:%S')
+    
+        	print(timestring)
+        	
+        	hours = timestring.split(":")[0]
+        	hours = int(hours)
+        	minutes = timestring.split(":")[1]
+        	minutes = int(minutes)
+        	seconds = timestring.split(":")[2]
+        	
+        	print(hours)
+        	print(minutes)
+        	print(seconds)
+        	
+        	invokehours = int(hours)
+        	invokeminutes = int(minutes)
+        	
+        	picstring = "-f pic_" + hours + "_" + minutes + ".jpg"
+        	
+        	#subprocess.call(["sudo", "python", "takepicture.py", "-f", picstring])
+        	subprocess.Popen(["sudo", "python", "takepicture.py", picstring], shell=False, stdout=subprocess.PIPE, preexec_fn=os.setsid, close_fds = True)
+            ##^^This should allow us to take a picture in another
+            ##thread whilst still letting us do other things.
             
             
         else:

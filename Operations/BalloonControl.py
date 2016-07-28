@@ -67,7 +67,9 @@ class BalloonControl(QueueProcessor):
             self.mp.sendToQueue(message)
         elif cmd(command, GPS):
             self.logger.logMessage(message)
-            self.inomp.sendToQueue(QueueMessage(ARDUINO_RELAY, [ARDUINO_GPS]))
+            #self.inomp.sendToQueue(QueueMessage(ARDUINO_RELAY, [ARDUINO_GPS]))
+            subprocess.Popen(["sudo", "python", "grab_gps.py"], shell=False, stdout=subprocess.PIPE, preexec_fn=os.setsid, close_fds = True)
+            
         elif cmd(command, HUMIDITY):
             self.logger.logMessage(message)
             self.inomp.sendToQueue(QueueMessage(ARDUINO_RELAY, [ARDUINO_HUMIDITY]))

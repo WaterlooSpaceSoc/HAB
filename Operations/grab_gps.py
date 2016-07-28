@@ -31,7 +31,8 @@ if __name__ == '__main__':
   gpsp = GpsPoller() # create the thread
   try:
     gpsp.start() # start it up
-    while True:
+    #while True:
+    if (True):
       #It may take a second or two to get good data
       #print gpsd.fix.latitude,', ',gpsd.fix.longitude,'  Time: ',gpsd.utc
  
@@ -46,7 +47,7 @@ if __name__ == '__main__':
       subprocess.call("echo '" + "********************" + "' >> gps_log.txt", shell=True)
       print("finished writing to file")
  
-      time.sleep(25) #set to whatever
+      #time.sleep(25) #set to whatever
  
   except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
     print "\nKilling Thread..."

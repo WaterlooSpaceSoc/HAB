@@ -14,7 +14,8 @@ import datetime
 import grab_gps ##gps grabbing functions
 
 class BalloonControl(QueueProcessor):
-    def __init__(self, port="COM5", inoport="COM6"):
+    #def __init__(self, port="COM5", inoport="COM6"):
+    def __init__(self, port="/dev/ttyUSB0", inoport="/dev/ttyUSB1"):
         QueueProcessor.__init__(self, Logger(lambda line, lvl: sys.stdout.write(line), "Balloon.log"), "BC")
         self.mp = BalloonMP(self, port, self.logger)
         self.inomp = ArduinoMP(self, inoport, self.logger)

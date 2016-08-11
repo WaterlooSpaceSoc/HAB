@@ -28,7 +28,7 @@ class GpsPoller(threading.Thread):
       gpsd.next() #this will continue to loop and grab EACH set of gpsd info to clear the buffer
  
 #if __name__ == '__main__':
-def grab_gps:
+def grab_gps():
   gpsp = GpsPoller() # create the thread
   try:
     gpsp.start() # start it up
@@ -53,10 +53,10 @@ def grab_gps:
       return(returnstring)
  
   except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
-    print "\nKilling Thread..."
+    print ("\nKilling Thread...")
     gpsp.running = False
     gpsp.join() # wait for the thread to finish what it's doing
-  print "Done.\nExiting."
+  print ("Done.\nExiting.")
 
 ##Best multi-line commenting ever.
 if False:

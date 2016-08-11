@@ -76,6 +76,8 @@ class BalloonControl(QueueProcessor):
 			#subprocess.Popen(["sudo", "python", "grab_gps.py"], shell=False, stdout=subprocess.PIPE, preexec_fn=os.setsid, close_fds = True)
 			gps_string = subprocess.check_output("sudo python2 grab_gps.py", shell=True)
 			#gps_string = grab_gps()
+			print(gps_string)
+			print(type(gps_string))
 			self.mp.sendToQueue(QueueMessage(GPS, [gps_string])) ##Will this just work?
 			
 		elif cmd(command, HUMIDITY):
@@ -94,7 +96,7 @@ class BalloonControl(QueueProcessor):
 			##Hopefully this won't break everything.
 			self.logger.logMessage(message)
 			#self.mp.sendToQueue(message)
-			timestring = datetime.strftime(datetime.now(), '%H:%M:%S')
+			timestring = datetime.strptime(datetime.now(), '%H:%M:%S')
 	
 			print(timestring)
 			

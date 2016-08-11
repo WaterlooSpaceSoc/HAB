@@ -11,7 +11,7 @@ from ConnectionChecker import ConnectionChecker
 from subprocess import popen
 import datetime
 
-import grab_gps ##gps grabbing functions
+#import grab_gps ##gps grabbing functions
 
 class BalloonControl(QueueProcessor):
     #def __init__(self, port="COM5", inoport="COM6"):
@@ -72,7 +72,8 @@ class BalloonControl(QueueProcessor):
             self.logger.logMessage(message)
             #self.inomp.sendToQueue(QueueMessage(ARDUINO_RELAY, [ARDUINO_GPS]))
             #subprocess.Popen(["sudo", "python", "grab_gps.py"], shell=False, stdout=subprocess.PIPE, preexec_fn=os.setsid, close_fds = True)
-            gps_string = grab_gps()
+            gps_string = subprocess.check_output("sudo python2 grab_gps.py", shell=True)
+            #gps_string = grab_gps()
             self.mp.sendToQueue(QueueMessage(GPS, [gps_string])) ##Will this just work?
             
         elif cmd(command, HUMIDITY):

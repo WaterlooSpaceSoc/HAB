@@ -11,7 +11,9 @@ from ConnectionChecker import ConnectionChecker
 ##Adding in popen for terminal
 #from subprocess import popen
 import subprocess
-import datetime
+#import datetime
+from datetime import datetime
+import os
 
 #import grab_gps ##gps grabbing functions
 
@@ -97,7 +99,7 @@ class BalloonControl(QueueProcessor):
 			##Hopefully this won't break everything.
 			self.logger.logMessage(message)
 			#self.mp.sendToQueue(message)
-			timestring = datetime.strptime(datetime.now(), '%H:%M:%S')
+			timestring = datetime.strftime(datetime.now(), '%H:%M:%S')
 	
 			print(timestring)
 			
@@ -114,7 +116,7 @@ class BalloonControl(QueueProcessor):
 			invokehours = int(hours)
 			invokeminutes = int(minutes)
 			
-			picstring = "-f pic_" + hours + "_" + minutes + ".jpg"
+			picstring = "-f pic_" + str(hours) + "_" + str(minutes) + ".jpg"
 			
 			#subprocess.call(["sudo", "python", "takepicture.py", "-f", picstring])
 			subprocess.Popen(["sudo", "python", "takepicture.py", picstring], shell=False, stdout=subprocess.PIPE, preexec_fn=os.setsid, close_fds = True)

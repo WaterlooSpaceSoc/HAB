@@ -29,9 +29,9 @@ class GpsPoller(threading.Thread):
  
 if __name__ == '__main__':
 #def grab_gps():
-  gpsp = GpsPoller() # create the thread
+  #gpsp = GpsPoller() # create the thread
   try:
-    gpsp.start() # start it up
+    #gpsp.start() # start it up
     #while True:
     if (True):
       #It may take a second or two to get good data
@@ -52,8 +52,10 @@ if __name__ == '__main__':
       returnstring = "*LAT " + str(gpsd.fix.latitude) + "*LON " + str(gpsd.fix.longitude) + "*TIME " + str(gpsd.utc)
       #return(returnstring)
       print(returnstring)
-      gpsp.running = False
-      gpsp.join() # wait for the thread to finish what it's doing
+      #gpsp.running = False
+      #gpsp.join() # wait for the thread to finish what it's doing
+      #exit
+      #os.system("pkill -9 python")
  
   except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
     print ("\nKilling Thread...")

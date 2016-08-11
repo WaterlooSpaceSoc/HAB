@@ -1,19 +1,4 @@
-Skip to content
-This repository
-Search
-Pull requests
-Issues
-Gist
- @richardda96
- Watch 7
-  Star 0
- Fork 0 WaterlooSpaceSoc/HAB
- Code  Issues 6  Pull requests 0  Wiki  Pulse  Graphs  Settings
-Branch: master Find file Copy pathHAB/Operations/BalloonControl.py
-3b217b5  14 minutes ago
-@richardda96 richardda96 run gps as separate script
-2 contributors @Scimson @richardda96
-RawBlameHistory    145 lines (126 sloc)  5.66 KB
+
 import sys
 from ArduinoMP import ArduinoMP
 from BalloonMP import BalloonMP
@@ -24,7 +9,8 @@ from ConnectionChecker import ConnectionChecker
 
 #Update July 21 2016
 ##Adding in popen for terminal
-from subprocess import popen
+#from subprocess import popen
+import subprocess
 import datetime
 
 #import grab_gps ##gps grabbing functions
@@ -158,5 +144,3 @@ def main(args):
 
 if __name__ == '__main__':
 	main(sys.argv[1:])
-Contact GitHub API Training Shop Blog About
-© 2016 GitHub, Inc. Terms Privacy Security Status Help

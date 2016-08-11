@@ -46,11 +46,12 @@ def grab_gps():
       subprocess.call("echo '" + "SPD " + str(gpsd.fix.speed) + "' >> gps_log.txt", shell=True)
       subprocess.call("echo '" + "CLIMB " + str(gpsd.fix.climb) + "' >> gps_log.txt", shell=True)
       subprocess.call("echo '" + "********************" + "' >> gps_log.txt", shell=True)
-      print("finished writing to file")
+      #print("finished writing to file")
  
       #time.sleep(25) #set to whatever
       returnstring = "*LAT " + str(gpsd.fix.latitude) + "*LON " + str(gpsd.fix.longitude) + "*TIME " + str(gpsd.utc)
-      return(returnstring)
+      #return(returnstring)
+      print(returnstring)
  
   except (KeyboardInterrupt, SystemExit): #when you press ctrl+c
     print ("\nKilling Thread...")
